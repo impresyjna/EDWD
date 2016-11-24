@@ -1,0 +1,89 @@
+<project default="all" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+	<property file="${basedir}/project.properties" />
+	<property environment="env" />
+
+	<property name="user.hdfs.dir" value="/${user.id}" />
+
+	<property name="data.dir" value="${basedir}/data" />
+	<property name="hdfs.data.dir" value="/data" />
+	
+	<property name="hadoop.conf.dir" value="${hadoop.home}/conf" />
+	<property name="hadoop.bin.dir" value="${hadoop.home}/bin" />
+	<property name="hadoop.sbin.dir" value="${hadoop.home}/sbin" />
+	<property name="hadoop" value="${hadoop.bin.dir}/hadoop" />
+	
+	<property name="hdfs" value="${hadoop.bin.dir}/hdfs" />
+
+	<property name="java.sources" value="${basedir}/src/main/java" />
+	<property name="java.libs" value="${basedir}/libs" />
+
+	<property name="java.target.dir" value="target/ant" />
+	<property name="java.target.classes" value="${java.target.dir}/classes" />
+	<property name="java.target.jar" value="${java.target.dir}/hadoop-intro-${user.id}.jar" />
+
+	<property name="hdfs.results.dir" value="/results" />
+	<property name="hdfs.job.results.dir" value="${hdfs.results.dir}/${job.name}" />
+
+	<target name="init-hadoop">
+		<exec executable="${hadoop}">
+			<arg line="namenode -format" />
+		</exec>
+		<exec executable="${hadoop.sbin.dir}/start-dfs.sh">
+		</exec>
+	</target>
+
+	<target name="put-data">
+		<exec executable="${hdfs}">
+			<arg line="dfs -rm -r ${hdfs.data.dir}" />
+		</exec>
+		<exec executable="${hdfs}">
+			<arg line="dfs -mkdir ${hdfs.data.dir}" />
+		</exec>
+		<exec executable="${hdfs}">
+			<arg line="dfs -put ${data.dir}/${job.data} ${hdfs.data.dir}" />
+		</exec>
+			<exec executable="${hdfs}">
+			<arg line="dfs -ls ${hdfs.data.dir}" />
+		</exec>
+	</target>
+
+	
+	<path id="compile.classpath">
+		<fileset dir="${java.libs}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	
+	<target name="create-jar">
+		<delete dir="${java.target}" />
+		<mkdir dir="${java.target.classes}" />
+		<javac srcdir="${java.sources}" destdir="${java.target.classes}">
+			<classpath refid="compile.classpath"/>
+		</javac>
+		<jar destfile="${java.target.jar}" basedir="${java.target.classes}">
+			<manifest>
+				<attribute name="Main-Class" value="pl.put.idss.hadoop.DWDriver" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="run-jar">
+		<exec executable="${hdfs}">
+			<arg line="dfs -rm -r ${hdfs.results.dir}" />
+		</exec>
+		<exec executable="${hadoop}">
+			<arg line="jar ${java.target.jar} ${job.name} ${hdfs.data.dir}/${job.data} ${hdfs.job.results.dir} ${job.args}" />
+		</exec>
+	</target>
+
+	<target name="display-results">
+		<exec executable="${hdfs}">
+			<arg line="dfs -cat ${hdfs.job.results.dir}/part-r-00000" />
+		</exec>
+	</target>
+
+	<target name="run" depends="put-data, create-jar, run-jar, display-results" />
+	<target name="all" depends="run" />
+
+</project>
