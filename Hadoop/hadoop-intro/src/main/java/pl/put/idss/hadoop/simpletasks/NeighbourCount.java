@@ -126,8 +126,8 @@ public class NeighbourCount {
         job2.setOutputKeyClass(Text.class);
 		job2.setOutputValueClass(IntWritable.class);
 
-		FileInputFormat.addInputPath(job, new Path(TMP_PATH));
-		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
+		FileInputFormat.addInputPath(job2, new Path(TMP_PATH));
+		FileOutputFormat.setOutputPath(job2, new Path(otherArgs[1]));
 		
 		boolean result = job2.waitForCompletion(true);
         FileSystem.get(conf).delete(new Path(TMP_PATH), true);
