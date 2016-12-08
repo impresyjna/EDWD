@@ -2,7 +2,9 @@ package pl.put.idss.dw.hadoop.tasks;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -49,70 +51,57 @@ public class MMMultTask {
 		}
 	}
 
-	public static class MMMultTaskReducer extends
-			Reducer<Text, Text, Text, Text> {
+	public static class MMMultTaskReducer extends Reducer<Text, Text, Text, Text> {
+        private Map<Integer, Integer> mMap = new HashMap<>();
+        private Map<Integer, Integer> nMap = new HashMap<>();
+        private Text output = new Text();
+        private String outputString;
 
 		@Override
-		public void reduce(Text key, Iterable<Text> values,
-				Context context) throws IOException, InterruptedException {
-			ArrayList<Text> mArray = new ArrayList<>(); 
-			ArrayList<Text> nArray = new ArrayList<>(); 
-			String outputs = "";  
-			
-			while(values.iterator().hasNext()) {
-				Text value = values.iterator().next(); 
-				String[] stringValue = value.toString().split("\\s"); 
-				int cellValue = Integer.parseInt(stringValue[2]);
-				if(stringValue[0].equals("M")) {
-					mArray.add(value);
-				} else if(stringValue[0].equals("N")) {
-					nArray.add(value);
-				}
-			}
-			
-			for(int i=0; i<mArray.size(); i++) {
-				System.out.println(mArray.get(i));
-				for(int j=0; j<nArray.size(); j++) {
-					System.out.println(nArray.get(j));
-					String[] mStrings = mArray.get(i).toString().split("\\s"); 
-					String[] nStrings = nArray.get(j).toString().split("\\s"); 
-					int value = Integer.parseInt(mStrings[2])*Integer.parseInt(nStrings[2]); 
-//					System.out.println(mStrings[1]);
-//					System.out.println(nStrings[1]);
-				}
-			}
-			for(Text mValue: mArray) {
-				for(Text nValue: nArray) {
-//					System.out.println(mValue);
-//					System.out.println(nValue);
-					String[] mStrings = mValue.toString().split("\\s"); 
-					String[] nStrings = nValue.toString().split("\\s"); 
-					int value = Integer.parseInt(mStrings[2])*Integer.parseInt(nStrings[2]); 
-//					System.out.println(mStrings[1]);
-//					System.out.println(nStrings[1]);
-					outputs = outputs + mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value)+" "; 
-				}
-			}
-			outputs = outputs.substring(0, outputs.length()-1); 
-			context.write(key, new Text(outputs));
-			outputs = "";
+		public void reduce(Text key, Iterable<Text> values, Context context) throws
+                IOException, InterruptedException {
+            outputString = "";
+            mMap.clear();
+            nMap.clear();
+
+            while(values.iterator().hasNext()) {
+                String[] result = values.iterator().next().toString().split("\\s");
+                if(result[0].equals("M")) {
+                    this.mMap.put(Integer.parseInt(result[1]), Integer.parseInt(result[2]));
+                } else {
+                    this.nMap.put(Integer.parseInt(result[1]), Integer.parseInt(result[2]));
+                }
+            }
+
+            for(Map.Entry<Integer, Integer> m: mMap.entrySet()) {
+                for(Map.Entry<Integer, Integer> n: nMap.entrySet()) {
+                    int result = m.getValue() * n.getValue();
+                    outputString += m.getKey() + " " + n.getKey() + " " + result + ",";
+                }
+            }
+
+            outputString = outputString.substring(0, outputString.length() - 1);
+            this.output.set(outputString);
+            context.write(key, this.output);
 		}
-	}
+	}	
+	
 
-	public static class MMMultTask2Mapper extends
-			Mapper<Object, Text, Text, IntWritable> {
+	public static class MMMultTask2Mapper extends Mapper<Object, Text, Text, IntWritable> {
+        private Text keyText = new Text();
+        private IntWritable valInt = new IntWritable();
 
 		@Override
-		public void map(Object key, Text value, Context context)
-				throws IOException, InterruptedException {
-			Text newKey = new Text();
-			String[] parts = value.toString().split("\t");
-			String[] values = parts[1].toString().split("\\s"); 
-			for(String tuple: values) {
-				String[] strings = tuple.split(",");
-				newKey.set(strings[0]+","+strings[1]);
-				context.write(newKey, new IntWritable(Integer.parseInt(strings[2])));
-			}
+		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] parts = value.toString().split("\t");
+            String[] tripples = parts[1].split(",");
+
+            for(String tripple: tripples) {
+                String[] values = tripple.split("\\s");
+                this.keyText.set(values[0] + " " + values[1]);
+                this.valInt.set(Integer.parseInt(values[2]));
+                context.write(this.keyText, this.valInt);
+            }
 		}
 	}
 
