@@ -50,7 +50,7 @@ public class MMMultTask {
 	}
 
 	public static class MMMultTaskReducer extends
-			Reducer<Text, Text, Text, ArrayList<Text>> {
+			Reducer<Text, Text, Text, Text> {
 
 		@Override
 		public void reduce(Text key, Iterable<Text> values,
@@ -58,7 +58,7 @@ public class MMMultTask {
 			Set<Text> newMatrix = new HashSet<>(); 
 			ArrayList<Text> mArray = new ArrayList<>(); 
 			ArrayList<Text> nArray = new ArrayList<>(); 
-			ArrayList<Text> outputs = new ArrayList<>(); 
+			String outputs = "";  
 			
 			for(Text value: values){
 				String[] stringValue = value.toString().split("\\s"); 
@@ -75,22 +75,23 @@ public class MMMultTask {
 					String[] mStrings = mValue.toString().split("\\s"); 
 					String[] nStrings = nValue.toString().split("\\s"); 
 					int value = Integer.parseInt(mStrings[2])*Integer.parseInt(nStrings[2]); 
-					outputs.add(new Text(mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value))); 
+					outputs += (mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value)+" "); 
 				}
 			}
-			context.write(key, outputs);
+			context.write(key, new Text(outputs));
 		}
 	}
 
 	public static class MMMultTask2Mapper extends
-			Mapper<Text, ArrayList<Text>, Text, IntWritable> {
+			Mapper<Object, Text, Text, IntWritable> {
 
 		@Override
-		public void map(Text key, ArrayList<Text> value, Context context)
+		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
-			Text newKey = new Text(); 
-			for(Text tuple: value) {
-				String[] strings = tuple.toString().split(",");
+			Text newKey = new Text();
+			String[] values = value.toString().split("\\s"); 
+			for(String tuple: values) {
+				String[] strings = tuple.split(",");
 				newKey.set(strings[0]+","+strings[1]);
 				context.write(newKey, new IntWritable(Integer.parseInt(strings[2])));
 			}
@@ -131,7 +132,7 @@ public class MMMultTask {
 		
 		job.setReducerClass(MMMultTaskReducer.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(ArrayList.class);
+		job.setOutputValueClass(Text.class);
 		
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
 		FileInputFormat.addInputPath(job, new Path(otherArgs[2]));
