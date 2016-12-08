@@ -30,7 +30,6 @@ public class MMMultTask {
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			char firstLetter = ((FileSplit) context.getInputSplit()).getPath().getName().toString().charAt(0);
-			System.out.println(firstLetter);
 			if(firstLetter == 'M'){
 					StringTokenizer st = new StringTokenizer(value.toString());
 					String i = st.nextToken(); 
