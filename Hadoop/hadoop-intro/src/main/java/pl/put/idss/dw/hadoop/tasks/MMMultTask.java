@@ -128,10 +128,12 @@ public class MMMultTask {
 
 		job.setMapperClass(MMMultTaskMapper.class);
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(ArrayList.class);
+		job.setMapOutputValueClass(Text.class);
 		
 		job.setReducerClass(MMMultTaskReducer.class);
-
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(ArrayList.class);
+		
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0] + "/M.txt"));
 		FileInputFormat.addInputPath(job, new Path(otherArgs[0] + "/N.txt"));
 		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1] + "_tmp"));
@@ -152,6 +154,6 @@ public class MMMultTask {
 			FileOutputFormat.setOutputPath(job2, new Path(otherArgs[1]));
 			job2.waitForCompletion(true);
 		}
-		System.exit(1);
+		System.exit(0);
 	}
 }
