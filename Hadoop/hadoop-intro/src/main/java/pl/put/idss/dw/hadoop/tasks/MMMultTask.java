@@ -100,11 +100,17 @@ public class MMMultTask {
 
 	public static class MMMultTask2Reducer extends
 			Reducer<Text, IntWritable, Text, IntWritable> {
-
+		private IntWritable result = new IntWritable();
+		
 		@Override
 		public void reduce(Text key, Iterable<IntWritable> values,
 				Context context) throws IOException, InterruptedException {
-			// ...or you can use reducer from Hadoop :)
+			int sum=0; 
+			for(IntWritable element:values){
+				sum += element.get(); 
+			}
+			result.set(sum);
+			context.write(key, result);
 		}
 	}
 
@@ -136,7 +142,7 @@ public class MMMultTask {
 
 			job2.setMapperClass(MMMultTask2Mapper.class);
 			job2.setMapOutputKeyClass(Text.class);
-			job2.setMapOutputValueClass(Text.class);
+			job2.setMapOutputValueClass(IntWritable.class);
 
 			job2.setReducerClass(MMMultTask2Reducer.class);
 			job2.setOutputKeyClass(Text.class);
