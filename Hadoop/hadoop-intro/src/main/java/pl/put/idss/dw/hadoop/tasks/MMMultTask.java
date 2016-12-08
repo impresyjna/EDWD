@@ -29,7 +29,7 @@ public class MMMultTask {
 		@Override
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
-			char firstLetter = ((FileSplit) context.getInputSplit()).getPath().toString().charAt(0);
+			char firstLetter = ((FileSplit) context.getInputSplit()).getPath().getName().toString().charAt(0);
 			if(firstLetter == 'M'){
 					StringTokenizer st = new StringTokenizer(value.toString());
 					String i = st.nextToken(); 
