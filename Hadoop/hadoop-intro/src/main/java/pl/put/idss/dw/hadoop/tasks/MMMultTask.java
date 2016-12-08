@@ -31,49 +31,55 @@ public class MMMultTask {
 				throws IOException, InterruptedException {
 			char firstLetter = ((FileSplit) context.getInputSplit()).getPath().toString().charAt(0);
 			if(firstLetter == 'M'){
-				String[] matrix = value.toString().split("\\n");
-				for(int a=0; a<matrix.length; a++) {
-					StringTokenizer st = new StringTokenizer(matrix[a]);
+					StringTokenizer st = new StringTokenizer(value.toString());
 					String i = st.nextToken(); 
 					String j = st.nextToken(); 
 					String matrixValue = st.nextToken(); 
 					matrixCell.set(new Text("M "+" "+i+" "+matrixValue));
 					context.write(new Text(j), matrixCell);
-				}
 			}
 			if(firstLetter == 'N') {
-				String[] matrix = value.toString().split("\\n");
-				for(int a=0; a<matrix.length; a++) {
-					StringTokenizer st = new StringTokenizer(matrix[a]);
+					StringTokenizer st = new StringTokenizer(value.toString());
 					String j = st.nextToken(); 
 					String k = st.nextToken(); 
 					String matrixValue = st.nextToken(); 
-					matrixCell.set(new Text("M "+" "+k+" "+matrixValue));
+					matrixCell.set(new Text("N "+" "+k+" "+matrixValue));
 					context.write(new Text(j), matrixCell);
-				}
 			}
 		}
 	}
 
 	public static class MMMultTaskReducer extends
-			Reducer<Text, Text, Text, IntWritable> {
+			Reducer<Text, Text, Text, ArrayList<Text>> {
 
 		@Override
 		public void reduce(Text key, Iterable<Text> values,
 				Context context) throws IOException, InterruptedException {
 			Set<Text> newMatrix = new HashSet<>(); 
-			ArrayList<Integer> mArray = new ArrayList<>(); 
-			ArrayList<Integer> nArray = new ArrayList<>(); 
+			ArrayList<Text> mArray = new ArrayList<>(); 
+			ArrayList<Text> nArray = new ArrayList<>(); 
+			ArrayList<Text> outputs = new ArrayList<>(); 
 			
 			for(Text value: values){
 				String[] stringValue = value.toString().split("\\s"); 
 				int cellValue = Integer.parseInt(stringValue[2]); 
 				if(stringValue[0] == "M") {
-					mArray.add(cellValue); 
+					mArray.add(value); 
 				} else {
-					nArray.add(cellValue); 
+					nArray.add(value); 
 				}
 			}
+			
+			for(Text mValue: mArray) {
+				for(Text nValue: nArray) {
+					String[] mStrings = mValue.toString().split("\\s"); 
+					String[] nStrings = nValue.toString().split("\\s"); 
+					int value = Integer.parseInt(mStrings[2])*Integer.parseInt(nStrings[2]); 
+					outputs.add(new Text(mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value))); 
+				}
+			}
+			
+			context.write(key, outputs);
 		}
 	}
 
