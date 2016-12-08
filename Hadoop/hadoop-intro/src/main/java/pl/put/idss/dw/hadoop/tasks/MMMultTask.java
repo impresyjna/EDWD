@@ -60,23 +60,22 @@ public class MMMultTask {
 			ArrayList<Text> nArray = new ArrayList<>(); 
 			String outputs = "";  
 			
-			for(Text value: values){
+			while(values.iterator().hasNext()) {
+				Text value = values.iterator().next(); 
 				String[] stringValue = value.toString().split("\\s"); 
-				int cellValue = Integer.parseInt(stringValue[2]); 
-				if(stringValue[0] == "M") {
-					mArray.add(value); 
+				int cellValue = Integer.parseInt(stringValue[2]);
+				if(stringValue[0].equals("M")) {
+					mArray.add(value);
 				} else {
-					nArray.add(value); 
+					nArray.add(value);
 				}
 			}
-			
 			for(Text mValue: mArray) {
 				for(Text nValue: nArray) {
 					String[] mStrings = mValue.toString().split("\\s"); 
 					String[] nStrings = nValue.toString().split("\\s"); 
 					int value = Integer.parseInt(mStrings[2])*Integer.parseInt(nStrings[2]); 
-					outputs = outputs + (mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value)+" "); 
-					System.out.println(outputs);
+					outputs = outputs + mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value)+" "; 
 				}
 			}
 			outputs = outputs.substring(0, outputs.length()-1); 
