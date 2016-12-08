@@ -75,7 +75,7 @@ public class MMMultTask {
 					String[] mStrings = mValue.toString().split("\\s"); 
 					String[] nStrings = nValue.toString().split("\\s"); 
 					int value = Integer.parseInt(mStrings[2])*Integer.parseInt(nStrings[2]); 
-					outputs += (mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value)+" "); 
+					outputs = outputs + (mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value)+" "); 
 					System.out.println(outputs);
 				}
 			}
