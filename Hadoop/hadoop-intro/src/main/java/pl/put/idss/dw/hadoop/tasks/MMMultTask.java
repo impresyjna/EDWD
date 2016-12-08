@@ -30,12 +30,13 @@ public class MMMultTask {
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			char firstLetter = ((FileSplit) context.getInputSplit()).getPath().getName().toString().charAt(0);
+			System.out.println(firstLetter);
 			if(firstLetter == 'M'){
 					StringTokenizer st = new StringTokenizer(value.toString());
 					String i = st.nextToken(); 
 					String j = st.nextToken(); 
 					String matrixValue = st.nextToken(); 
-					matrixCell.set(new Text("M "+" "+i+" "+matrixValue));
+					matrixCell.set("M"+" "+i+" "+matrixValue);
 					context.write(new Text(j), matrixCell);
 			}
 			if(firstLetter == 'N') {
@@ -43,7 +44,7 @@ public class MMMultTask {
 					String j = st.nextToken(); 
 					String k = st.nextToken(); 
 					String matrixValue = st.nextToken(); 
-					matrixCell.set(new Text("N "+" "+k+" "+matrixValue));
+					matrixCell.set("N"+" "+k+" "+matrixValue);
 					context.write(new Text(j), matrixCell);
 			}
 		}
@@ -88,8 +89,11 @@ public class MMMultTask {
 		@Override
 		public void map(Text key, ArrayList<Text> value, Context context)
 				throws IOException, InterruptedException {
+			Text newKey = new Text(); 
 			for(Text tuple: value) {
-				
+				String[] strings = tuple.toString().split(",");
+				newKey.set(strings[0]+","+strings[1]);
+				context.write(newKey, new IntWritable(Integer.parseInt(strings[2])));
 			}
 		}
 	}
@@ -132,7 +136,7 @@ public class MMMultTask {
 
 			job2.setMapperClass(MMMultTask2Mapper.class);
 			job2.setMapOutputKeyClass(Text.class);
-			job2.setMapOutputValueClass(ArrayList.class);
+			job2.setMapOutputValueClass(Text.class);
 
 			job2.setReducerClass(MMMultTask2Reducer.class);
 			job2.setOutputKeyClass(Text.class);

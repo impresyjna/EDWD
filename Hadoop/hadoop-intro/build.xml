@@ -43,12 +43,6 @@
 		<exec executable="${hdfs}">
 			<arg line="dfs -put ${data.dir}/${job.data} ${hdfs.data.dir}" />
 		</exec>
-		<exec executable="${hdfs}">
-					<arg line="dfs -put ${data.dir}/N.txt ${hdfs.data.dir}" />
-		</exec>
-		<exec executable="${hdfs}">
-					<arg line="dfs -put ${data.dir}/M.txt ${hdfs.data.dir}" />
-		</exec>	
 			<exec executable="${hdfs}">
 			<arg line="dfs -ls ${hdfs.data.dir}" />
 		</exec>
@@ -79,7 +73,7 @@
 			<arg line="dfs -rm -r ${hdfs.results.dir}" />
 		</exec>
 		<exec executable="${hadoop}">
-			<arg line="jar ${java.target.jar} ${job.name} ${hdfs.data.dir}/${job.data} ${hdfs.job.results.dir} ${job.args}" />
+		      <arg line="jar ${java.target.jar} ${job.name} ${hdfs.data.dir}/${job.data} ${hdfs.job.results.dir} ${hdfs.data.dir}/${job.data2} ${job.args}"/>
 		</exec>
 	</target>
 
