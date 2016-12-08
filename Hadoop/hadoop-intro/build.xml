@@ -43,6 +43,12 @@
 		<exec executable="${hdfs}">
 			<arg line="dfs -put ${data.dir}/${job.data} ${hdfs.data.dir}" />
 		</exec>
+		<exec executable="${hdfs}">
+					<arg line="dfs -put ${data.dir}/N.txt ${hdfs.data.dir}" />
+		</exec>
+		<exec executable="${hdfs}">
+					<arg line="dfs -put ${data.dir}/M.txt ${hdfs.data.dir}" />
+		</exec>	
 			<exec executable="${hdfs}">
 			<arg line="dfs -ls ${hdfs.data.dir}" />
 		</exec>

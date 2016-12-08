@@ -78,17 +78,19 @@ public class MMMultTask {
 					outputs.add(new Text(mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value))); 
 				}
 			}
-			
 			context.write(key, outputs);
 		}
 	}
 
 	public static class MMMultTask2Mapper extends
-			Mapper<Object, Text, Text, IntWritable> {
+			Mapper<Text, ArrayList<Text>, Text, IntWritable> {
 
 		@Override
-		public void map(Object key, Text value, Context context)
+		public void map(Text key, ArrayList<Text> value, Context context)
 				throws IOException, InterruptedException {
+			for(Text tuple: value) {
+				
+			}
 		}
 	}
 
@@ -115,8 +117,8 @@ public class MMMultTask {
 		job.setJarByClass(MMMultTask.class);
 
 		job.setMapperClass(MMMultTaskMapper.class);
-		job.setMapOutputKeyClass(IntWritable.class);
-		job.setMapOutputValueClass(Text.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(ArrayList.class);
 		
 		job.setReducerClass(MMMultTaskReducer.class);
 
@@ -130,7 +132,7 @@ public class MMMultTask {
 
 			job2.setMapperClass(MMMultTask2Mapper.class);
 			job2.setMapOutputKeyClass(Text.class);
-			job2.setMapOutputValueClass(IntWritable.class);
+			job2.setMapOutputValueClass(ArrayList.class);
 
 			job2.setReducerClass(MMMultTask2Reducer.class);
 			job2.setOutputKeyClass(Text.class);
