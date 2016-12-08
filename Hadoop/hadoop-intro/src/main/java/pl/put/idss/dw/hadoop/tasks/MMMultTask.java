@@ -118,7 +118,7 @@ public class MMMultTask {
 		Configuration conf = new Configuration();
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
-		if (otherArgs.length != 2) {
+		if (otherArgs.length != 3) {
 			System.err.println("Usage: mm-mult <input_dir> <output_dir>");
 			System.exit(2);
 		}
@@ -134,8 +134,8 @@ public class MMMultTask {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(ArrayList.class);
 		
-		FileInputFormat.addInputPath(job, new Path(otherArgs[0] + "/M.txt"));
-		FileInputFormat.addInputPath(job, new Path(otherArgs[0] + "/N.txt"));
+		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
+		FileInputFormat.addInputPath(job, new Path(otherArgs[2]));
 		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1] + "_tmp"));
 
 		if (job.waitForCompletion(true)) {
