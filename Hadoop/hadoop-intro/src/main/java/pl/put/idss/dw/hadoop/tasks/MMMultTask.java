@@ -76,8 +76,10 @@ public class MMMultTask {
 					String[] nStrings = nValue.toString().split("\\s"); 
 					int value = Integer.parseInt(mStrings[2])*Integer.parseInt(nStrings[2]); 
 					outputs += (mStrings[1] + "," + nStrings[1] + "," + String.valueOf(value)+" "); 
+					System.out.println(outputs);
 				}
 			}
+			outputs = outputs.substring(0, outputs.length()-1); 
 			context.write(key, new Text(outputs));
 		}
 	}
@@ -89,7 +91,8 @@ public class MMMultTask {
 		public void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
 			Text newKey = new Text();
-			String[] values = value.toString().split("\\s"); 
+			String[] parts = value.toString().split("\t");
+			String[] values = parts[1].toString().split("\\s"); 
 			for(String tuple: values) {
 				String[] strings = tuple.split(",");
 				newKey.set(strings[0]+","+strings[1]);
